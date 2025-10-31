@@ -1,8 +1,8 @@
 import inspect
 from argparse import ArgumentParser
-from typing import Callable, Dict, Optional, Tuple, get_type_hints
+from typing import Any, Callable, Dict, List, Optional, Tuple, get_type_hints
 
-_registry: list[tuple[str, str, Callable[..., None], Dict]] = []
+_registry: List[Tuple[str, str, Callable[..., Any], Dict]] = []
 
 
 def register_command(
@@ -16,7 +16,7 @@ def register_command(
     **metadata
 ):
     """Register a command with optional metadata for argument parsing"""
-    def decorator(func: Callable[..., None]):
+    def decorator(func: Callable[..., Any]):
         # Automatically extract function signature info
         sig = inspect.signature(func)
         func_metadata = {
@@ -38,11 +38,11 @@ def register_command(
     return decorator
 
 
-def get_registry() -> list[tuple[str, str, Callable[..., None], Dict]]:
+def get_registry() -> List[Tuple[str, str, Callable[..., Any], Dict]]:
     return _registry.copy()
 
 
-def find_command(group: str, name: str) -> Optional[Tuple[Callable[..., None], Dict]]:
+def find_command(group: str, name: str) -> Optional[Tuple[Callable[..., Any], Dict]]:
     """Find a command function and its metadata by group and name"""
     for reg_group, reg_name, func, metadata in _registry:
         if reg_group == group and reg_name == name:
@@ -98,19 +98,23 @@ def register_with_argparse() -> ArgumentParser:
                 # Required argument
                 add_args = [param_name]
                 add_kwargs = {
-                    'type': param_type,
                     'help': param_help
                 }
+                # Only add type if no action is specified
+                if 'action' not in arg_options:
+                    add_kwargs['type'] = param_type
                 add_kwargs.update(arg_options)
                 cmd_parser.add_argument(*add_args, **add_kwargs)
             else:
                 # Optional argument
                 add_args = [f'-{param_name[0]}', f'--{param_name}']
                 add_kwargs = {
-                    'type': param_type,
-                    'default': param.default,
                     'help': f'{param_help} (default: {param.default})'
                 }
+                # Only add type and default if no action is specified
+                if 'action' not in arg_options:
+                    add_kwargs['type'] = param_type
+                    add_kwargs['default'] = param.default
                 add_kwargs.update(arg_options)
                 cmd_parser.add_argument(*add_args, **add_kwargs)
 
