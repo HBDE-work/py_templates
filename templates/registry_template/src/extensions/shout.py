@@ -1,9 +1,9 @@
-from registry import register_command
+from ..registry import register_command
 
 
 @register_command(
-    "text",
-    "shout",
+    name='shout',
+    group='text',
     help='Shout a String',
     param_help={'text': 'the text to SHOUT'}
 )

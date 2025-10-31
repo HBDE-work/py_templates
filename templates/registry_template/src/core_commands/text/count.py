@@ -1,9 +1,9 @@
-from registry import register_command
+from ...registry import register_command
 
 
 @register_command(
-    "text",
-    "count",
+    name='count',
+    group='text',
     help='Count Words',
     param_help={'text': 'text to count words of'}
 )

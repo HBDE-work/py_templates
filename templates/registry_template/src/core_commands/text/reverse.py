@@ -1,9 +1,9 @@
-from registry import register_command
+from ...registry import register_command
 
 
 @register_command(
-    "text",
-    "reverse",
+    name='reverse',
+    group='text',
     help='Reverse a Text',
     param_help={'text': 'text to reverse'}
 )
